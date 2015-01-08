@@ -7,6 +7,27 @@
 #include <QCheckBox>
 #include <QListView>
 
+QStringList GeneratePowerOf2StringList()
+{
+    return {"2x2",
+        "4x4",
+        "8x8",
+        "16x16",
+        "32x32",
+        "64x64",
+        "128x128",
+        "256x256",
+        "512x512",
+        "1024x1024",
+        "2048x2048",
+        "4096x4096",
+        "8192x8192",
+        "16384x16384",
+        "32768x32768",
+        "65536x65536"
+    };
+}
+
 MainWindow::MainWindow(QWidget* parent)
 : QMainWindow(parent)
 {
@@ -22,6 +43,8 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
 
     auto labelTextureSize = new QLabel("Texture Size:",this);
     auto comboBoxTextureSize = new QComboBox(this);
+    comboBoxTextureSize->addItems(GeneratePowerOf2StringList());
+    comboBoxTextureSize->setCurrentIndex(13);
     centralLayout->addWidget(labelTextureSize, 0, 0);
     centralLayout->addWidget(comboBoxTextureSize, 0, 1);
     centralLayout->setColumnStretch(1, 1);
@@ -29,6 +52,8 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
     
     auto labelTileSize = new QLabel("Tile Size:", this);
     auto comboBoxTileSize = new QComboBox(this);
+    comboBoxTileSize->addItems(GeneratePowerOf2StringList());
+    comboBoxTileSize->setCurrentIndex(5);
     centralLayout->addWidget(labelTileSize, 1, 0);
     centralLayout->addWidget(comboBoxTileSize, 1, 1);
     
