@@ -4,8 +4,11 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QGridLayout>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QCheckBox>
 #include <QListView>
+#include <QGroupBox>
 
 QStringList GeneratePowerOf2StringList()
 {
@@ -62,13 +65,25 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
     centralLayout->addWidget(lableTileResize,2,0);
     centralLayout->addWidget(checkboxTileResize,2,1);
     
+    auto filesGroup = new QGroupBox(this);
+    auto statusLabel = new QLabel("0 of 65536 slots taken");
+    
     auto listOfFiles = new QListView(this);
-    centralLayout->addWidget(listOfFiles,3,0,1,-1);
     
     auto addButton = new QPushButton("Add",this);
-    centralLayout->addWidget(addButton,4,0);
+    auto buttonlayout = new QHBoxLayout();
+    buttonlayout->addWidget(addButton);
     auto removeButton = new QPushButton("Remove",this);
-    centralLayout->addWidget(removeButton,4,1);
+    buttonlayout->addWidget(removeButton);
+    
+    auto grouplayout = new QVBoxLayout();
+    grouplayout->addWidget(statusLabel);
+    grouplayout->addWidget(listOfFiles);
+    grouplayout->addLayout(buttonlayout);
+    
+    filesGroup->setLayout(grouplayout);
+    
+    centralLayout->addWidget(filesGroup, 4, 0, 2, -1);
     
     auto generateButton = new QPushButton("Generate",this);
     centralLayout->addWidget(generateButton,5,0,1,-1);
