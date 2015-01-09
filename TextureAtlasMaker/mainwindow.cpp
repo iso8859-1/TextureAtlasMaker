@@ -92,6 +92,32 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
     
     auto listOfFiles = new QListView(this);
     
+    connect(comboBoxTextureSize
+            ,indexChanged
+            ,[=](int index){
+                //sizes as power of 2
+                int textureSize = comboBoxTextureSize->currentIndex()+1;
+                int tileSize = comboBoxTileSize->currentIndex()+1;
+                //divide by subtracting the exponent and multiply by itself by squaring it
+                int numberOfTilesExponent = (textureSize - tileSize)+(textureSize - tileSize);
+                int numberOfTiles = 1 << numberOfTilesExponent;
+                int numberOfListEntries = 0;
+                statusLabel->setText(QString::number(numberOfListEntries)+" of "+QString::number(numberOfTiles)+" slots taken");
+            });
+    
+    connect(comboBoxTileSize
+            ,indexChanged
+            ,[=](int index){
+                //sizes as power of 2
+                int textureSize = comboBoxTextureSize->currentIndex()+1;
+                int tileSize = comboBoxTileSize->currentIndex()+1;
+                //divide by subtracting the exponent and multiply by itself by squaring it
+                int numberOfTilesExponent = (textureSize - tileSize)+(textureSize - tileSize);
+                int numberOfTiles = 1 << numberOfTilesExponent;
+                int numberOfListEntries = 0;
+                statusLabel->setText(QString::number(numberOfListEntries)+" of "+QString::number(numberOfTiles)+" slots taken");
+            });
+    
     auto addButton = new QPushButton("Add",this);
     auto buttonlayout = new QHBoxLayout();
     buttonlayout->addWidget(addButton);
