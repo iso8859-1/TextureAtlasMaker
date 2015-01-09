@@ -60,6 +60,28 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
     centralLayout->addWidget(labelTileSize, 1, 0);
     centralLayout->addWidget(comboBoxTileSize, 1, 1);
     
+    void (QComboBox::*indexChanged)(int) = &QComboBox::currentIndexChanged;
+    
+    connect(comboBoxTextureSize,
+            indexChanged,
+            [=](int index)
+    {
+        if (index<comboBoxTileSize->currentIndex())
+        {
+            comboBoxTileSize->setCurrentIndex(index);
+        }
+    });
+    
+    connect(comboBoxTileSize,
+            indexChanged,
+            [=](int index)
+    {
+        if (index>comboBoxTextureSize->currentIndex())
+        {
+            comboBoxTextureSize->setCurrentIndex(index);
+        }
+    });
+    
     auto lableTileResize = new QLabel("Resize Tile Graphics?",this);
     auto checkboxTileResize = new QCheckBox(this);
     centralLayout->addWidget(lableTileResize,2,0);
