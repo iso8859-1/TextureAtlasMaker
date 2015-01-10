@@ -117,6 +117,10 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
     connect(comboBoxTileSize
             ,indexChanged
             ,adaptLabel);
+
+	connect(_list
+		, &QStringListModel::dataChanged
+		, [=](const QModelIndex & topLeft, const QModelIndex & bottomRight, const QVector<int> & roles){ adaptLabel(0); });
     
     auto addButton = new QPushButton("Add",this);
     auto buttonlayout = new QHBoxLayout();
@@ -137,4 +141,11 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
     centralLayout->addWidget(generateButton,5,0,1,-1);
     
     setLayout(centralLayout);
+}
+
+void TextureAtlasMakerWidget::appendFile(const QString& filename)
+{
+	_list->insertRow(_list->rowCount());
+	auto index = _list->index(_list->rowCount() - 1);
+	_list->setData(index, filename);
 }

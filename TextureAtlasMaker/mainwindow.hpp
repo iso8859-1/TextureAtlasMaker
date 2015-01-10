@@ -10,6 +10,8 @@ class TextureAtlasMakerWidget : public QWidget
 public:
     TextureAtlasMakerWidget(QWidget* parent);
 private:
+	void appendFile(const QString& filename);
+
     QStringListModel* _list;
 };
 
