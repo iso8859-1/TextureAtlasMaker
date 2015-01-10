@@ -98,6 +98,7 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
     _list = new QStringListModel(this);
     
     listOfFiles->setModel(_list);
+	listOfFiles->setSelectionMode(QListView::ExtendedSelection);
     
     auto adaptLabel = [=](int index){
         //sizes as power of 2
@@ -122,6 +123,12 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
 	connect(_list
 		, &QStringListModel::dataChanged
 		, [=](const QModelIndex & topLeft, const QModelIndex & bottomRight, const QVector<int> & roles){ adaptLabel(0); });
+
+	connect(_list
+		, &QStringListModel::rowsRemoved
+		, [=](const QModelIndex & parent, int first, int last){
+		adaptLabel(0);
+	});
     
     auto addButton = new QPushButton("Add",this);
 
@@ -146,6 +153,17 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
     auto buttonlayout = new QHBoxLayout();
     buttonlayout->addWidget(addButton);
     auto removeButton = new QPushButton("Remove",this);
+
+	connect(removeButton
+		, &QPushButton::clicked
+		, [=](){
+		QStringList list;
+		for (const auto & i : listOfFiles->selectionModel()->selectedRows())
+		{
+			_list->removeRow(i.row());
+		}
+	});
+
     buttonlayout->addWidget(removeButton);
     
     auto grouplayout = new QVBoxLayout();
