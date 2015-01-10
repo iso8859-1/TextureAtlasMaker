@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 #include <QCheckBox>
 #include <QListView>
+#include <QStringListModel>
 #include <QGroupBox>
 
 QStringList GeneratePowerOf2StringList()
@@ -30,6 +31,8 @@ QStringList GeneratePowerOf2StringList()
         "65536x65536"
     };
 }
+
+
 
 MainWindow::MainWindow(QWidget* parent)
 : QMainWindow(parent)
@@ -91,6 +94,10 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
     auto statusLabel = new QLabel("0 of 65536 slots taken");
     
     auto listOfFiles = new QListView(this);
+    _list = new QStringListModel(this);
+    
+    listOfFiles->setModel(_list);
+    
     
     connect(comboBoxTextureSize
             ,indexChanged
@@ -101,7 +108,7 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
                 //divide by subtracting the exponent and multiply by itself by squaring it
                 int numberOfTilesExponent = (textureSize - tileSize)+(textureSize - tileSize);
                 int numberOfTiles = 1 << numberOfTilesExponent;
-                int numberOfListEntries = 0;
+                int numberOfListEntries = _list->rowCount();
                 statusLabel->setText(QString::number(numberOfListEntries)+" of "+QString::number(numberOfTiles)+" slots taken");
             });
     
@@ -114,7 +121,7 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
                 //divide by subtracting the exponent and multiply by itself by squaring it
                 int numberOfTilesExponent = (textureSize - tileSize)+(textureSize - tileSize);
                 int numberOfTiles = 1 << numberOfTilesExponent;
-                int numberOfListEntries = 0;
+                int numberOfListEntries = _list->rowCount();
                 statusLabel->setText(QString::number(numberOfListEntries)+" of "+QString::number(numberOfTiles)+" slots taken");
             });
     
