@@ -135,10 +135,10 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
     
     filesGroup->setLayout(grouplayout);
     
-    centralLayout->addWidget(filesGroup, 4, 0, 2, -1);
+    centralLayout->addWidget(filesGroup, 4, 0, 2, 2);
     
     auto generateButton = new QPushButton("Generate",this);
-    centralLayout->addWidget(generateButton,5,0,1,-1);
+    centralLayout->addWidget(generateButton,6,0,1,-1);
     
     setLayout(centralLayout);
 }
