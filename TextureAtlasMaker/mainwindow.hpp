@@ -11,6 +11,7 @@ public:
     TextureAtlasMakerWidget(QWidget* parent);
 private:
 	void appendFile(const QString& filename);
+	void appendFiles(const QStringList& files);
 
     QStringListModel* _list;
 };

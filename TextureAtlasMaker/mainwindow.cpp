@@ -10,6 +10,7 @@
 #include <QListView>
 #include <QStringListModel>
 #include <QGroupBox>
+#include <QFileDialog>
 
 QStringList GeneratePowerOf2StringList()
 {
@@ -123,6 +124,25 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
 		, [=](const QModelIndex & topLeft, const QModelIndex & bottomRight, const QVector<int> & roles){ adaptLabel(0); });
     
     auto addButton = new QPushButton("Add",this);
+
+	connect(addButton
+		, &QPushButton::clicked
+		, [=](){
+		QFileDialog dialog(this);
+		dialog.setFileMode(QFileDialog::ExistingFiles);
+		QStringList filters;
+		filters << "Textures (*.png)"
+			<< "Any files (*)";
+		dialog.setNameFilters(filters);
+		dialog.setViewMode(QFileDialog::Detail);
+		QStringList fileNames;
+		if (dialog.exec())
+		{
+			fileNames = dialog.selectedFiles();
+		}
+		this->appendFiles(fileNames);
+	});
+
     auto buttonlayout = new QHBoxLayout();
     buttonlayout->addWidget(addButton);
     auto removeButton = new QPushButton("Remove",this);
@@ -136,6 +156,7 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
     filesGroup->setLayout(grouplayout);
     
     centralLayout->addWidget(filesGroup, 4, 0, 2, 2);
+	centralLayout->setRowStretch(4, 10);
     
     auto generateButton = new QPushButton("Generate",this);
     centralLayout->addWidget(generateButton,6,0,1,-1);
@@ -148,4 +169,12 @@ void TextureAtlasMakerWidget::appendFile(const QString& filename)
 	_list->insertRow(_list->rowCount());
 	auto index = _list->index(_list->rowCount() - 1);
 	_list->setData(index, filename);
+}
+
+void TextureAtlasMakerWidget::appendFiles(const QStringList& files)
+{
+	for (const auto& i : files)
+	{
+		appendFile(i);
+	}
 }
