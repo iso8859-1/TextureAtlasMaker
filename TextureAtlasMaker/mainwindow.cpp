@@ -99,6 +99,7 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
     
     listOfFiles->setModel(_list);
 	listOfFiles->setSelectionMode(QListView::ExtendedSelection);
+	listOfFiles->setMinimumWidth(600);
     
     auto adaptLabel = [=](int index){
         //sizes as power of 2
