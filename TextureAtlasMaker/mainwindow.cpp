@@ -105,7 +105,7 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
         //sizes as power of 2
         int textureSize = comboBoxTextureSize->currentIndex()+1;
         int tileSize = comboBoxTileSize->currentIndex()+1;
-        //divide by subtracting the exponent and multiply by itself by squaring it
+        //divide by subtracting the exponent and add by itself by squaring it
         int numberOfTilesExponent = (textureSize - tileSize)+(textureSize - tileSize);
         int numberOfTiles = 1 << numberOfTilesExponent;
         int numberOfListEntries = _list->rowCount();
