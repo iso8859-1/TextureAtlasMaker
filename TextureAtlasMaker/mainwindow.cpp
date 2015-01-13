@@ -185,6 +185,28 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
     auto hLayoutOutput = new QHBoxLayout();
     hLayoutOutput->addWidget(outputFilename);
     hLayoutOutput->addWidget(selectOutputFilenameButton);
+    
+    connect(selectOutputFilenameButton,
+            &QPushButton::clicked,
+            [=](){
+                QFileDialog dialog(this);
+                dialog.setFileMode(QFileDialog::AnyFile);
+                QStringList filters;
+                filters << "Textures (*.png)"
+                << "Any files (*)";
+                dialog.setNameFilters(filters);
+                dialog.setViewMode(QFileDialog::Detail);
+                QStringList fileName;
+                if (dialog.exec())
+                {
+                    fileName = dialog.selectedFiles();
+                    if (fileName.count()>0)
+                    {
+                        outputFilename->setText(fileName[0]);
+                    }
+                }
+            });
+    
     centralLayout->addLayout(hLayoutOutput, 7, 0,1,2);
     
     auto generateButton = new QPushButton("Generate",this);
