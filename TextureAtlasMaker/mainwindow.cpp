@@ -11,6 +11,7 @@
 #include <QStringListModel>
 #include <QGroupBox>
 #include <QFileDialog>
+#include <QLineEdit>
 
 QStringList GeneratePowerOf2StringList()
 {
@@ -177,8 +178,17 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
     centralLayout->addWidget(filesGroup, 4, 0, 2, 2);
 	centralLayout->setRowStretch(4, 10);
     
+    auto outputLabel = new QLabel("output file:");
+    centralLayout->addWidget(outputLabel,6,0,1,2);
+    auto outputFilename = new QLineEdit(this);
+    auto selectOutputFilenameButton = new QPushButton("...",this);
+    auto hLayoutOutput = new QHBoxLayout();
+    hLayoutOutput->addWidget(outputFilename);
+    hLayoutOutput->addWidget(selectOutputFilenameButton);
+    centralLayout->addLayout(hLayoutOutput, 7, 0,1,2);
+    
     auto generateButton = new QPushButton("Generate",this);
-    centralLayout->addWidget(generateButton,6,0,1,-1);
+    centralLayout->addWidget(generateButton,8,0,1,-1);
     
     setLayout(centralLayout);
 }
