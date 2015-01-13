@@ -196,6 +196,7 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
                 << "Any files (*)";
                 dialog.setNameFilters(filters);
                 dialog.setViewMode(QFileDialog::Detail);
+                dialog.setAcceptMode(QFileDialog::AcceptSave);
                 QStringList fileName;
                 if (dialog.exec())
                 {
