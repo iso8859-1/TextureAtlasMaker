@@ -2,8 +2,7 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_executable(textureatlasmaker main.cpp mainwindow.hpp mainwindow.cpp)
-qt5_use_modules(textureatlasmaker Widgets)
-target_link_libraries(textureatlasmaker ${QT_LIBRARIES})
+target_link_libraries(textureatlasmaker Qt5::Widgets texturegenerator)
 
 IF(MSVC) # Check if we are using the Visual Studio compiler
 	target_link_libraries(textureatlasmaker Qt5::WinMain)

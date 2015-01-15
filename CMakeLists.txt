@@ -15,7 +15,9 @@ ENDIF(NOT MSVC)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 # Qt library
+find_package(Qt5Core)
 find_package(Qt5Widgets)
 
+add_subdirectory(TextureGeneratorLib)
 add_subdirectory(TextureAtlasMaker)
 add_subdirectory(test)
