@@ -17,6 +17,7 @@ set(CMAKE_AUTOMOC ON)
 # Qt library
 find_package(Qt5Core)
 find_package(Qt5Widgets)
+find_package(Qt5Gui)
 
 add_subdirectory(TextureGeneratorLib)
 add_subdirectory(TextureAtlasMaker)
