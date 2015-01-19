@@ -1,19 +1,18 @@
 #include "generator.hpp"
 
-#include <QImage>
 #include <QFileInfo>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 
 
-void generateTexture(const QString& filename, unsigned int width, unsigned int height)
+void generateTexture(const QString& filename, unsigned int widthAndHeight, std::vector<std::shared_ptr<QImage>> textures)
 {
     if (QFileInfo::exists(filename))
     {
         throw InvalidArgument("file does already exist");
     }
-    QImage texture(width,height,QImage::Format_ARGB32);
+    QImage texture(widthAndHeight,widthAndHeight,QImage::Format_ARGB32);
     texture.save(filename,"PNG");
     QFile descriptionFile(DescriptionFilename(filename));
     descriptionFile.open(QFile::WriteOnly);
