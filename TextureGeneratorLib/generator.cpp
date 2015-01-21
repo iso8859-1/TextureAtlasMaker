@@ -3,10 +3,10 @@
 #include <QFileInfo>
 #include <QFile>
 #include <QJsonDocument>
-#include <QJsonObject>
+#include <QJsonArray>
 
 
-void generateTexture(const QString& filename, unsigned int widthAndHeight, std::vector<std::shared_ptr<QImage>> textures)
+void generateTexture(const QString& filename, unsigned int widthAndHeight, const std::vector<QImage>& textures)
 {
     if (QFileInfo::exists(filename))
     {
@@ -16,7 +16,11 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, std::
     texture.save(filename,"PNG");
     QFile descriptionFile(DescriptionFilename(filename));
     descriptionFile.open(QFile::WriteOnly);
-    QJsonObject description;
+    QJsonArray description;
+    for (int i=0; i<textures.size(); ++i)
+    {
+        description.push_back(i);
+    }
     QJsonDocument descriptionDoc(description);
     descriptionFile.write(descriptionDoc.toJson());
 }

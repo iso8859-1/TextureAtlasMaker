@@ -8,6 +8,7 @@
 #include <QFile>
 #include <QImage>
 #include <QJsonDocument>
+#include <QJsonArray>
 
 namespace {
     
@@ -19,7 +20,7 @@ namespace {
 
 }
 
-TEST_CASE("generated texture has the desired filename","[functional],[generator]")
+TEST_CASE("generated texture has the desired filename","[functional],[texture]")
 {
     QString testfile = "testfile.png";
     Cleanup(testfile);
@@ -27,7 +28,7 @@ TEST_CASE("generated texture has the desired filename","[functional],[generator]
     REQUIRE(QFileInfo::exists(testfile)==true);
 }
 
-TEST_CASE("generated texture is png file","[functional],[generator]")
+TEST_CASE("generated texture is png file","[functional],[texture]")
 {
     QString testfile("testfile.png");
     Cleanup(testfile);
@@ -36,7 +37,7 @@ TEST_CASE("generated texture is png file","[functional],[generator]")
     REQUIRE(image.isNull() == false);
 }
 
-TEST_CASE("generated texture has the desired size","[functional],[generator]")
+TEST_CASE("generated texture has the desired size","[functional],[texture]")
 {
     QString testfile("testfile.png");
     Cleanup(testfile);
@@ -56,7 +57,7 @@ TEST_CASE("generator throws IllegalArgument if file already exists","[functional
     CHECK_THROWS_AS(generateTexture(testfile, width,{}), InvalidArgument);
 }
 
-TEST_CASE("generator generates description file","[functional][generator]")
+TEST_CASE("generator generates description file","[functional][description]")
 {
     QString testfile("testfile.png");
     Cleanup(testfile);
@@ -64,7 +65,7 @@ TEST_CASE("generator generates description file","[functional][generator]")
     REQUIRE(QFileInfo::exists(DescriptionFilename(testfile)));
 }
 
-TEST_CASE("generated description file is json","[functional],[generator]")
+TEST_CASE("generated description file is json","[functional],[description]")
 {
     QString testfile("testfile.png");
     Cleanup(testfile);
@@ -74,4 +75,23 @@ TEST_CASE("generated description file is json","[functional],[generator]")
     auto data = descriptionFile.readAll();
     auto doc = QJsonDocument::fromJson(data);
     REQUIRE(doc.isNull()==false);
+}
+
+TEST_CASE("generated description file contains one entry per texture in atlas","[functional][description]")
+{
+    QString testfile("testfile.png");
+    Cleanup(testfile);
+    const int numTextures = 10;
+    std::vector<QImage> textures;
+    for (int i=0; i<numTextures; ++i)
+    {
+        textures.push_back(QImage(64,64,QImage::Format_ARGB32));
+    }
+    generateTexture(testfile, 128, textures);
+    QFile tmp(DescriptionFilename(testfile));
+    tmp.open(QFile::ReadOnly);
+    auto description = QJsonDocument::fromJson(tmp.readAll());
+    CHECK(description.isNull()==false);
+    auto textureDescriptions = description.array();
+    CHECK(textureDescriptions.count()==numTextures);
 }

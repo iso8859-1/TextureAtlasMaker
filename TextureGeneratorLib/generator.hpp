@@ -22,5 +22,5 @@ public:
     InvalidArgument(const std::string& message) : GeneratorException(message) {}
 };
 
-void generateTexture(const QString& filename, unsigned int widthAndHeight, std::vector<std::shared_ptr<QImage>> textures);
+void generateTexture(const QString& filename, unsigned int widthAndHeight, const std::vector<QImage>& textures);
 QString DescriptionFilename(const QString& file);
