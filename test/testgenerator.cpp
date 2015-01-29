@@ -9,6 +9,8 @@
 #include <QImage>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonValue>
 
 namespace {
     
@@ -85,13 +87,46 @@ TEST_CASE("generated description file contains one entry per texture in atlas","
     std::vector<std::tuple<QString,QImage>> textures;
     for (int i=0; i<numTextures; ++i)
     {
-        textures.push_back(std::make_tuple<QString,QImage>("test",QImage(64,64,QImage::Format_ARGB32)));
+        std::stringstream number;
+        number<<i;
+        textures.push_back(std::make_tuple<QString,QImage>(std::string("test"+number.str()).c_str(),QImage(64,64,QImage::Format_ARGB32)));
     }
     generateTexture(testfile, 128, textures);
     QFile tmp(DescriptionFilename(testfile));
     tmp.open(QFile::ReadOnly);
     auto description = QJsonDocument::fromJson(tmp.readAll());
     CHECK(description.isNull()==false);
-    auto textureDescriptions = description.array();
-    CHECK(textureDescriptions.count()==numTextures);
+    QJsonObject textureDescription = description.object();
+    const auto& textureCollection = textureDescription["textures"].toArray();
+    REQUIRE(textureCollection.count()==numTextures);
+}
+
+TEST_CASE("generator throws if multiple textures contain the same id-string","[functional][generator]")
+{
+    QString testfile("testfile.png");
+    Cleanup(testfile);
+    const int numTextures = 2;
+    std::vector<std::tuple<QString,QImage>> textures;
+    for (int i=0; i<numTextures; ++i)
+    {
+        textures.push_back(std::make_tuple<QString,QImage>("test",QImage(64,64,QImage::Format_ARGB32)));
+    }
+    CHECK_THROWS_AS(generateTexture(testfile, 128, textures),std::logic_error);
+}
+
+TEST_CASE("generated description file entries contain strings passed as texture identification","[functional][description]")
+{
+    QString testfile("testfile.png");
+    Cleanup(testfile);
+    std::vector<std::tuple<QString, QImage>> textures;
+    textures.push_back(std::make_tuple<QString,QImage>("myTile",QImage(64,64,QImage::Format_ARGB32)));
+    generateTexture(testfile, 128, textures);
+    QFile tmp(DescriptionFilename(testfile));
+    tmp.open(QFile::ReadOnly);
+    auto description = QJsonDocument::fromJson(tmp.readAll());
+    auto textureDescription = description.object();
+    auto textureArray = textureDescription["textures"].toArray();
+    CHECK(textureArray.empty()==false);
+    auto firstTexture = textureArray[0].toObject();
+    CHECK(firstTexture["ID"].toString()=="myTile");
 }
