@@ -26,7 +26,7 @@ TEST_CASE("generated texture has the desired filename","[functional],[texture]")
 {
     QString testfile = "testfile.png";
     Cleanup(testfile);
-    generateTexture(testfile,128,{});
+    generateTexture(testfile,128, 32,{});
     REQUIRE(QFileInfo::exists(testfile)==true);
 }
 
@@ -34,7 +34,7 @@ TEST_CASE("generated texture is png file","[functional],[texture]")
 {
     QString testfile("testfile.png");
     Cleanup(testfile);
-    generateTexture(testfile,128,{});
+    generateTexture(testfile,128, 32,{});
     QImage image(testfile,"PNG");
     REQUIRE(image.isNull() == false);
 }
@@ -44,7 +44,7 @@ TEST_CASE("generated texture has the desired size","[functional],[texture]")
     QString testfile("testfile.png");
     Cleanup(testfile);
     unsigned int width = 128;
-    generateTexture(testfile, width,{});
+    generateTexture(testfile, width, 32,{});
     QImage image(testfile,"PNG");
     CHECK(image.width()==width);
     CHECK(image.height()==width);
@@ -55,15 +55,15 @@ TEST_CASE("generator throws IllegalArgument if file already exists","[functional
     QString testfile("testfile.png");
     Cleanup(testfile);
     unsigned int width = 128;
-    generateTexture(testfile, width,{});
-    CHECK_THROWS_AS(generateTexture(testfile, width,{}), InvalidArgument);
+    generateTexture(testfile, width, 32,{});
+    CHECK_THROWS_AS(generateTexture(testfile, width, 32,{}), InvalidArgument);
 }
 
 TEST_CASE("generator generates description file","[functional][description]")
 {
     QString testfile("testfile.png");
     Cleanup(testfile);
-    generateTexture(testfile, 128,{});
+    generateTexture(testfile, 128, 32,{});
     REQUIRE(QFileInfo::exists(DescriptionFilename(testfile)));
 }
 
@@ -71,7 +71,7 @@ TEST_CASE("generated description file is json","[functional],[description]")
 {
     QString testfile("testfile.png");
     Cleanup(testfile);
-    generateTexture(testfile, 128,{});
+    generateTexture(testfile, 128, 32,{});
     QFile descriptionFile(DescriptionFilename(testfile));
     descriptionFile.open(QFile::ReadOnly);
     auto data = descriptionFile.readAll();
@@ -91,7 +91,7 @@ TEST_CASE("generated description file contains one entry per texture in atlas","
         number<<i;
         textures.push_back(std::make_tuple<QString,QImage>(std::string("test"+number.str()).c_str(),QImage(64,64,QImage::Format_ARGB32)));
     }
-    generateTexture(testfile, 128, textures);
+    generateTexture(testfile, 128, 32, textures);
     QFile tmp(DescriptionFilename(testfile));
     tmp.open(QFile::ReadOnly);
     auto description = QJsonDocument::fromJson(tmp.readAll());
@@ -111,7 +111,7 @@ TEST_CASE("generator throws if multiple textures contain the same id-string","[f
     {
         textures.push_back(std::make_tuple<QString,QImage>("test",QImage(64,64,QImage::Format_ARGB32)));
     }
-    CHECK_THROWS_AS(generateTexture(testfile, 128, textures),std::logic_error);
+    CHECK_THROWS_AS(generateTexture(testfile, 128, 32, textures),std::logic_error);
 }
 
 TEST_CASE("generated description file entries contain strings passed as texture identification","[functional][description]")
@@ -120,7 +120,7 @@ TEST_CASE("generated description file entries contain strings passed as texture 
     Cleanup(testfile);
     std::vector<std::tuple<QString, QImage>> textures;
     textures.push_back(std::make_tuple<QString,QImage>("myTile",QImage(64,64,QImage::Format_ARGB32)));
-    generateTexture(testfile, 128, textures);
+    generateTexture(testfile, 128, 32, textures);
     QFile tmp(DescriptionFilename(testfile));
     tmp.open(QFile::ReadOnly);
     auto description = QJsonDocument::fromJson(tmp.readAll());
@@ -129,4 +129,18 @@ TEST_CASE("generated description file entries contain strings passed as texture 
     CHECK(textureArray.empty()==false);
     auto firstTexture = textureArray[0].toObject();
     CHECK(firstTexture["ID"].toString()=="myTile");
+}
+
+TEST_CASE("generated description file contains file-info object","[functional][description]")
+{
+    QString testfile("testfile.png");
+    Cleanup(testfile);
+    generateTexture(testfile, 128, 32, {});
+    QFile tmp(DescriptionFilename(testfile));
+    tmp.open(QFile::ReadOnly);
+    auto descFile = QJsonDocument::fromJson(tmp.readAll()).object();
+    auto fileInfo = descFile["fileinfo"].toObject();
+    CHECK(fileInfo["version"].toInt()==1);
+    CHECK(fileInfo["texturefile"].toString()==testfile);
+    CHECK(fileInfo["tilesize"].toInt()==32);
 }

@@ -8,8 +8,9 @@
 
 #include <set>
 
+QJsonObject FileInformation(const QString& filename, int tileSize);
 
-void generateTexture(const QString& filename, unsigned int widthAndHeight, const std::vector<std::tuple<QString, QImage>>& textures)
+void generateTexture(const QString& filename, unsigned int widthAndHeight, unsigned int tileSize, const std::vector<std::tuple<QString, QImage>>& textures)
 {
     if (QFileInfo::exists(filename))
     {
@@ -33,6 +34,7 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, const
     QFile descriptionFile(DescriptionFilename(filename));
     descriptionFile.open(QFile::WriteOnly);
     QJsonObject description;
+    description["fileinfo"]=FileInformation(filename, tileSize);
     QJsonArray textureDescriptions;
     for (const auto& i : textures)
     {
@@ -43,6 +45,15 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, const
     description["textures"]=textureDescriptions;
     QJsonDocument descriptionDoc(description);
     descriptionFile.write(descriptionDoc.toJson());
+}
+
+QJsonObject FileInformation(const QString& filename, int tileSize)
+{
+    QJsonObject result;
+    result["version"]=1;
+    result["texturefile"]=filename;
+    result["tilesize"]=tileSize;
+    return result;
 }
 
 QString DescriptionFilename(const QString& file)
