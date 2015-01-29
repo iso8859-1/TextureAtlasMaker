@@ -82,10 +82,10 @@ TEST_CASE("generated description file contains one entry per texture in atlas","
     QString testfile("testfile.png");
     Cleanup(testfile);
     const int numTextures = 10;
-    std::vector<QImage> textures;
+    std::vector<std::tuple<QString,QImage>> textures;
     for (int i=0; i<numTextures; ++i)
     {
-        textures.push_back(QImage(64,64,QImage::Format_ARGB32));
+        textures.push_back(std::make_tuple<QString,QImage>("test",QImage(64,64,QImage::Format_ARGB32)));
     }
     generateTexture(testfile, 128, textures);
     QFile tmp(DescriptionFilename(testfile));

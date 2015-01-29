@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <tuple>
 
 class GeneratorException : public std::exception
 {
@@ -22,5 +23,5 @@ public:
     InvalidArgument(const std::string& message) : GeneratorException(message) {}
 };
 
-void generateTexture(const QString& filename, unsigned int widthAndHeight, const std::vector<QImage>& textures);
+void generateTexture(const QString& filename, unsigned int widthAndHeight, const std::vector<std::tuple<QString,QImage>>& textures);
 QString DescriptionFilename(const QString& file);

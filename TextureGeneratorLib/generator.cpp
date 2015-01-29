@@ -6,7 +6,7 @@
 #include <QJsonArray>
 
 
-void generateTexture(const QString& filename, unsigned int widthAndHeight, const std::vector<QImage>& textures)
+void generateTexture(const QString& filename, unsigned int widthAndHeight, const std::vector<std::tuple<QString, QImage>>& textures)
 {
     if (QFileInfo::exists(filename))
     {
