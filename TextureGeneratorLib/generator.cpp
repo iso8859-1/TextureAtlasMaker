@@ -10,11 +10,20 @@
 
 QJsonObject FileInformation(const QString& filename, int tileSize);
 
+int isPowerOfTwo (unsigned int x)
+{
+    return ((x != 0) && ((x & (~x + 1)) == x));
+}
+
 void generateTexture(const QString& filename, unsigned int widthAndHeight, unsigned int tileSize, const std::vector<std::tuple<QString, QImage>>& textures)
 {
     if (QFileInfo::exists(filename))
     {
         throw InvalidArgument("file does already exist");
+    }
+    if (!isPowerOfTwo(widthAndHeight))
+    {
+        throw InvalidArgument("requested texture size is not a power of 2");
     }
     //check for duplicate descriptions
     std::set<QString> keys;
@@ -26,7 +35,12 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, unsig
         }
         else
         {
-            throw std::logic_error("multiple textures with same id detected");
+            throw InvalidArgument("multiple textures with same id detected");
+        }
+        auto size = std::get<1>(i).size();
+        if (!isPowerOfTwo(size.height()) || !isPowerOfTwo(size.width()))
+        {
+            throw InvalidArgument("texture with non-power-of-2 side detected");
         }
     }
     QImage texture(widthAndHeight,widthAndHeight,QImage::Format_ARGB32);

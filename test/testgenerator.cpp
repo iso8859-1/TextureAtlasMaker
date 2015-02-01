@@ -111,7 +111,7 @@ TEST_CASE("generator throws if multiple textures contain the same id-string","[f
     {
         textures.push_back(std::make_tuple<QString,QImage>("test",QImage(64,64,QImage::Format_ARGB32)));
     }
-    CHECK_THROWS_AS(generateTexture(testfile, 128, 32, textures),std::logic_error);
+    CHECK_THROWS_AS(generateTexture(testfile, 128, 32, textures),InvalidArgument);
 }
 
 TEST_CASE("generated description file entries contain strings passed as texture identification","[functional][description]")
@@ -143,4 +143,22 @@ TEST_CASE("generated description file contains file-info object","[functional][d
     CHECK(fileInfo["version"].toInt()==1);
     CHECK(fileInfo["texturefile"].toString()==testfile);
     CHECK(fileInfo["tilesize"].toInt()==32);
+}
+
+TEST_CASE("generator throws if requested texture size is not a power of 2","[functional][generator]")
+{
+    QString testfile("testfile.png");
+    Cleanup(testfile);
+    CHECK_THROWS_AS(generateTexture(testfile, 100, 32, {}), InvalidArgument);
+}
+
+TEST_CASE("generator throws if textures to be added are not a power of 2","[functional][generator]")
+{
+    QString testfile("testfile.png");
+    Cleanup(testfile);
+    std::vector<std::tuple<QString, QImage>> textures;
+    textures.push_back(std::make_tuple<QString,QImage>("myTile",QImage(60,64,QImage::Format_ARGB32)));
+    CHECK_THROWS_AS(generateTexture(testfile, 128, 32, textures), InvalidArgument);
+    textures.clear();
+    textures.push_back(std::make_tuple<QString,QImage>("myTile2",QImage(64,60,QImage::Format_ARGB32)));
 }
