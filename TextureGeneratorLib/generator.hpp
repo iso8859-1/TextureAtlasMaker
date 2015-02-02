@@ -23,5 +23,5 @@ public:
     InvalidArgument(const std::string& message) : GeneratorException(message) {}
 };
 
-void generateTexture(const QString& filename, unsigned int widthAndHeight, unsigned int tileSize, const std::vector<std::tuple<QString,QImage>>& textures);
+void generateTexture(const QString& filename, unsigned int widthAndHeight, const std::vector<std::tuple<QString,QImage>>& textures);
 QString DescriptionFilename(const QString& file);

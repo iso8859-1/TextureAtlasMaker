@@ -86,12 +86,7 @@ TextureAtlasMakerWidget::TextureAtlasMakerWidget(QWidget* parent)
             comboBoxTextureSize->setCurrentIndex(index);
         }
     });
-    
-    auto lableTileAutodetect = new QLabel("autodetect tile size",this);
-    auto checkboxTileAutodetect = new QCheckBox(this);
-    centralLayout->addWidget(lableTileAutodetect,2,0);
-    centralLayout->addWidget(checkboxTileAutodetect,2,1);
-    
+        
     auto filesGroup = new QGroupBox(this);
     auto statusLabel = new QLabel("0 of 65536 slots taken");
     

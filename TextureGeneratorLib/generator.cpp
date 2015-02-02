@@ -15,7 +15,7 @@ int isPowerOfTwo (unsigned int x)
     return ((x != 0) && ((x & (~x + 1)) == x));
 }
 
-void generateTexture(const QString& filename, unsigned int widthAndHeight, unsigned int tileSize, const std::vector<std::tuple<QString, QImage>>& textures)
+void generateTexture(const QString& filename, unsigned int widthAndHeight, const std::vector<std::tuple<QString, QImage>>& textures)
 {
     if (QFileInfo::exists(filename))
     {
@@ -48,6 +48,7 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, unsig
     QFile descriptionFile(DescriptionFilename(filename));
     descriptionFile.open(QFile::WriteOnly);
     QJsonObject description;
+    int tileSize = 32;
     description["fileinfo"]=FileInformation(filename, tileSize);
     QJsonArray textureDescriptions;
     for (const auto& i : textures)
