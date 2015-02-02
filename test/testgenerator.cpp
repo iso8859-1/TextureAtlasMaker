@@ -164,3 +164,19 @@ TEST_CASE("generator throws if requested texture size is not a power of 2","[fun
     textures.clear();
     textures.push_back(std::make_tuple<QString,QImage>("myTile2",QImage(64,60,QImage::Format_ARGB32)));
 }*/
+
+TEST_CASE("tile size detection returns the greatest common divisor that is a power of 2","[functional][tilesizedetector]")
+{
+    std::vector<std::tuple<QString, QImage>> textures;
+    textures.push_back(std::make_tuple<QString,QImage>("1",QImage(64,64,QImage::Format_ARGB32)));
+    CHECK(DetectTileSize(textures)==64);
+    textures.push_back(std::make_tuple<QString,QImage>("2",QImage(32,64,QImage::Format_ARGB32)));
+    CHECK(DetectTileSize(textures)==32);
+    textures.push_back(std::make_tuple<QString,QImage>("3",QImage(64,60,QImage::Format_ARGB32)));
+    CHECK(DetectTileSize(textures)==4);
+}
+
+TEST_CASE("tile size detection return 0 if there are no textures","[functional][tilesizedetector]")
+{
+    CHECK(DetectTileSize({})==0);
+}

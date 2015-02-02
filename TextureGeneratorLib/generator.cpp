@@ -15,6 +15,87 @@ int isPowerOfTwo (unsigned int x)
     return ((x != 0) && ((x & (~x + 1)) == x));
 }
 
+const std::vector<int>& GetSortedListOfPowersOf2()
+{
+    static std::vector<int> powers = {
+        //2147483648, larger than maximum int!
+        1073741824,
+        536870912,
+        268435456,
+        134217728,
+        67108864,
+        33554432,
+        16777216,
+        8388608,
+        4194304,
+        2097152,
+        1048576,
+        524288,
+        262144,
+        131072,
+        65536,
+        32768,
+        16384,
+        8192,
+        4096,
+        2048,
+        1024,
+        512,
+        256,
+        128,
+        64,
+        32,
+        16,
+        8,
+        4,
+        2,
+        1 };
+    return powers;
+}
+
+int DetectTileSize(const std::vector<std::tuple<QString, QImage>>& textures)
+{
+    if (textures.empty())
+    {
+        return 0;
+    }
+    //find maximum dimension for images
+    int max = 0;
+    std::set<int> dimensions;
+    for (const auto& i : textures)
+    {
+        const auto& image = std::get<1>(i);
+        max = std::max(image.height(), max);
+        max = std::max(image.width(), max);
+        dimensions.insert(image.height());
+        dimensions.insert(image.width());
+    }
+    //find largest power of 2 that is larger or equal to max
+    const auto& powers = GetSortedListOfPowersOf2();
+    int index = powers.size()-1;
+    while (powers[index]<max)
+    {
+        index-=1;
+    }
+    //loop through textures. If power at index is divisor of all widht() and height(), we're done
+    //otherwise, decrement index.
+    while (index<powers.size()-1)
+    {
+        bool divisible = true;
+        for (auto dim : dimensions) {
+            if (dim % powers[index] !=0) {
+                divisible = false;
+            }
+        }
+        if (divisible)
+        {
+            break;
+        }
+        index+=1;
+    }
+    return powers[index];
+}
+
 void generateTexture(const QString& filename, unsigned int widthAndHeight, const std::vector<std::tuple<QString, QImage>>& textures)
 {
     if (QFileInfo::exists(filename))
@@ -36,11 +117,6 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, const
         else
         {
             throw InvalidArgument("multiple textures with same id detected");
-        }
-        auto size = std::get<1>(i).size();
-        if (!isPowerOfTwo(size.height()) || !isPowerOfTwo(size.width()))
-        {
-            throw InvalidArgument("texture with non-power-of-2 side detected");
         }
     }
     QImage texture(widthAndHeight,widthAndHeight,QImage::Format_ARGB32);
