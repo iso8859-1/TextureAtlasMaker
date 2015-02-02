@@ -124,7 +124,7 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, const
     QFile descriptionFile(DescriptionFilename(filename));
     descriptionFile.open(QFile::WriteOnly);
     QJsonObject description;
-    int tileSize = 32;
+    int tileSize = DetectTileSize(textures);
     description["fileinfo"]=FileInformation(filename, tileSize);
     QJsonArray textureDescriptions;
     for (const auto& i : textures)

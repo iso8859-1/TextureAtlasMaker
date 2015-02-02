@@ -135,14 +135,16 @@ TEST_CASE("generated description file contains file-info object","[functional][d
 {
     QString testfile("testfile.png");
     Cleanup(testfile);
-    generateTexture(testfile, 128, {});
+    std::vector<std::tuple<QString, QImage>> textures;
+    textures.push_back(std::make_tuple<QString,QImage>("myTile",QImage(64,64,QImage::Format_ARGB32)));
+    generateTexture(testfile, 128, textures);
     QFile tmp(DescriptionFilename(testfile));
     tmp.open(QFile::ReadOnly);
     auto descFile = QJsonDocument::fromJson(tmp.readAll()).object();
     auto fileInfo = descFile["fileinfo"].toObject();
     CHECK(fileInfo["version"].toInt()==1);
     CHECK(fileInfo["texturefile"].toString()==testfile);
-    CHECK(fileInfo["tilesize"].toInt()==32);
+    CHECK(fileInfo["tilesize"].toInt()==DetectTileSize(textures));
 }
 
 TEST_CASE("generator throws if requested texture size is not a power of 2","[functional][generator]")
