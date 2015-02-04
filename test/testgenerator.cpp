@@ -182,3 +182,20 @@ TEST_CASE("tile size detection return 0 if there are no textures","[functional][
 {
     CHECK(DetectTileSize({})==0);
 }
+
+TEST_CASE("generated texture has a transparent background","[functional][generator]")
+{
+    QString testfile("testfile.png");
+    Cleanup(testfile);
+    generateTexture(testfile, 16, {});
+    QImage image(testfile,"PNG");
+    
+    for (int i=0; i<image.width(); ++i)
+    {
+        for (int k=0; k<image.height(); ++k)
+        {
+            auto pixel = image.pixel(i, k);
+            REQUIRE(qAlpha(pixel) == 0);
+        }
+    }
+}

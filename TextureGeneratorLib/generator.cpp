@@ -5,6 +5,7 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QColor>
 
 #include <set>
 
@@ -120,6 +121,7 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, const
         }
     }
     QImage texture(widthAndHeight,widthAndHeight,QImage::Format_ARGB32);
+    texture.fill(QColor(255,255,255,0));
     texture.save(filename,"PNG");
     QFile descriptionFile(DescriptionFilename(filename));
     descriptionFile.open(QFile::WriteOnly);
