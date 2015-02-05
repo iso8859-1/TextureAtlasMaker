@@ -11,6 +11,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QColor>
 
 namespace {
     
@@ -119,7 +120,7 @@ TEST_CASE("generated description file entries contain strings passed as texture 
     QString testfile("testfile.png");
     Cleanup(testfile);
     std::vector<std::tuple<QString, QImage>> textures;
-    textures.push_back(std::make_tuple<QString,QImage>("myTile",QImage(64,64,QImage::Format_ARGB32)));
+    textures.push_back(std::make_tuple<QString,QImage>("myTile",QImage(64,32,QImage::Format_ARGB32)));
     generateTexture(testfile, 128, textures);
     QFile tmp(DescriptionFilename(testfile));
     tmp.open(QFile::ReadOnly);
@@ -129,6 +130,8 @@ TEST_CASE("generated description file entries contain strings passed as texture 
     CHECK(textureArray.empty()==false);
     auto firstTexture = textureArray[0].toObject();
     CHECK(firstTexture["ID"].toString()=="myTile");
+    CHECK(firstTexture["width"].toInt()==64);
+    CHECK(firstTexture["height"].toInt()==32);
 }
 
 TEST_CASE("generated description file contains file-info object","[functional][description]")
@@ -183,7 +186,7 @@ TEST_CASE("tile size detection return 0 if there are no textures","[functional][
     CHECK(DetectTileSize({})==0);
 }
 
-TEST_CASE("generated texture has a transparent background","[functional][generator]")
+TEST_CASE("generated texture has a transparent background","[functional][texture]")
 {
     QString testfile("testfile.png");
     Cleanup(testfile);
@@ -199,3 +202,57 @@ TEST_CASE("generated texture has a transparent background","[functional][generat
         }
     }
 }
+
+TEST_CASE("generated texture contains textures passed as argument at the location described in the description file","[funtional][generator]")
+{
+    QString testfile("testfile.png");
+    Cleanup(testfile);
+
+    std::vector<std::tuple<QString, QImage>> textures;
+    QImage blue(8,8,QImage::Format_ARGB32);
+    blue.fill(QColor(0,0,255));
+    textures.push_back(std::make_tuple<QString,QImage>("blue",std::move(blue)));
+    QImage green(8,8,QImage::Format_ARGB32);
+    green.fill(QColor(0,255,0));
+    textures.push_back(std::make_tuple<QString,QImage>("green",std::move(green)));
+    
+    generateTexture(testfile, 16, textures);
+    
+    QImage image(testfile,"PNG");
+    QFile tmp(DescriptionFilename(testfile));
+    tmp.open(QFile::ReadOnly);
+    auto description = QJsonDocument::fromJson(tmp.readAll());
+    auto textureDescription = description.object();
+    auto textureArray = textureDescription["textures"].toArray();
+    
+    for (int i=0; i<textures.size(); ++i)
+    {
+        auto tmp = textureArray[i].toObject();
+        auto ID = tmp["ID"].toString();
+        auto x = tmp["x"].toInt();
+        auto y = tmp["y"].toInt();
+        auto width = tmp["width"].toInt();
+        auto height = tmp["height"].toInt();
+        REQUIRE(width!=0);
+        REQUIRE(height!=0);
+        for (int i=0; i<width; ++i)
+        {
+            for (int k=0; k<height; ++k)
+            {
+                if (ID == "blue")
+                {
+                    REQUIRE(image.pixel(x+i, y+k) == 0xff0000ff);
+                }
+                else if (ID == "green")
+                {
+                    REQUIRE(image.pixel(x+i, y+k) == 0xff00ff00);
+                }
+                else
+                {
+                    REQUIRE(false);
+                }
+            }
+        }
+    }
+}
+

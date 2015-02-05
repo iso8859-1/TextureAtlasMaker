@@ -11,6 +11,54 @@
 
 QJsonObject FileInformation(const QString& filename, int tileSize);
 
+QImage prepareTexture(unsigned int widthAndHeight)
+{
+    QImage texture(widthAndHeight,widthAndHeight,QImage::Format_ARGB32);
+    texture.fill(QColor(255,255,255,0));
+    return texture;
+}
+
+
+class AutoSavingTexture
+{
+public:
+    AutoSavingTexture(const QString& filename, unsigned int widthAndheight)
+    : m_filename(filename)
+    , m_texture(prepareTexture(widthAndheight))
+    { }
+    ~AutoSavingTexture()
+    {
+        m_texture.save(m_filename, "PNG");
+    }
+    
+    QImage& operator->() { return m_texture; }
+private:
+    QString m_filename;
+    QImage m_texture;
+};
+
+class JsonFile
+{
+public:
+    JsonFile(const QString& filename)
+    : m_filename(filename)
+    {}
+    
+    ~JsonFile()
+    {
+        QFile file(m_filename);
+        file.open(QFile::WriteOnly);
+        QJsonDocument descriptionDoc(m_root);
+        file.write(descriptionDoc.toJson());
+        file.close();
+    }
+    
+    QJsonObject& getRoot() { return m_root; }
+private:
+    QJsonObject m_root;
+    QString m_filename;
+};
+
 int isPowerOfTwo (unsigned int x)
 {
     return ((x != 0) && ((x & (~x + 1)) == x));
@@ -120,12 +168,9 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, const
             throw InvalidArgument("multiple textures with same id detected");
         }
     }
-    QImage texture(widthAndHeight,widthAndHeight,QImage::Format_ARGB32);
-    texture.fill(QColor(255,255,255,0));
-    texture.save(filename,"PNG");
-    QFile descriptionFile(DescriptionFilename(filename));
-    descriptionFile.open(QFile::WriteOnly);
-    QJsonObject description;
+    AutoSavingTexture texture(filename,widthAndHeight);
+    JsonFile descriptionFile(DescriptionFilename(filename));
+    auto& description = descriptionFile.getRoot();
     int tileSize = DetectTileSize(textures);
     description["fileinfo"]=FileInformation(filename, tileSize);
     QJsonArray textureDescriptions;
@@ -133,11 +178,11 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, const
     {
         QJsonObject textureJson;
         textureJson["ID"] = std::get<0>(i);
+        textureJson["width"] = std::get<1>(i).width();
+        textureJson["height"] = std::get<1>(i).height();
         textureDescriptions.push_back(textureJson);
     }
     description["textures"]=textureDescriptions;
-    QJsonDocument descriptionDoc(description);
-    descriptionFile.write(descriptionDoc.toJson());
 }
 
 QJsonObject FileInformation(const QString& filename, int tileSize)
