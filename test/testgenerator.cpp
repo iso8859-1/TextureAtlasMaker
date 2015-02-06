@@ -92,7 +92,7 @@ TEST_CASE("generated description file contains one entry per texture in atlas","
         number<<i;
         textures.push_back(std::make_tuple<QString,QImage>(std::string("test"+number.str()).c_str(),QImage(64,64,QImage::Format_ARGB32)));
     }
-    generateTexture(testfile, 128, textures);
+    generateTexture(testfile, 256, textures);
     QFile tmp(DescriptionFilename(testfile));
     tmp.open(QFile::ReadOnly);
     auto description = QJsonDocument::fromJson(tmp.readAll());
@@ -261,5 +261,22 @@ TEST_CASE("generated texture contains textures passed as argument at the locatio
             }
         }
     }
+}
+
+TEST_CASE("generator throws illegal argument exception if selected texture size is too small","[functional][generator]")
+{
+    QString testfile("testfile.png");
+    Cleanup(testfile);
+
+    std::vector<std::tuple<QString, QImage>> textures;
+    for (int i=0; i<5; ++i)
+    {
+        QImage tex(8,8,QImage::Format_ARGB32);
+        tex.fill(QColor(0,0,255));
+        std::stringstream name;
+        name << i;
+        textures.push_back(std::make_tuple<QString,QImage>(name.str().c_str(),std::move(tex)));
+    }
+    CHECK_THROWS_AS(generateTexture(testfile, 16, textures), InvalidArgument);
 }
 

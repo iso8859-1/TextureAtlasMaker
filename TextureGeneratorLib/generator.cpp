@@ -171,6 +171,8 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, const
         throw InvalidArgument("requested texture size is not a power of 2");
     }
     //check for duplicate descriptions
+    //and calculate area
+    int area = 0;
     std::set<QString> keys;
     for (const auto& i : textures)
     {
@@ -182,7 +184,14 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, const
         {
             throw InvalidArgument("multiple textures with same id detected");
         }
+        area += std::get<1>(i).width()*std::get<1>(i).height();
     }
+    
+    if (area>widthAndHeight*widthAndHeight)
+    {
+        throw InvalidArgument("textures do not fit into texture atlas");
+    }
+    
     AutoSavingTexture texture(filename,widthAndHeight);
     JsonFile descriptionFile(DescriptionFilename(filename));
     auto& description = descriptionFile.getRoot();
