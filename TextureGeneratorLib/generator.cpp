@@ -6,6 +6,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QColor>
+#include <QPainter>
 
 #include <set>
 
@@ -32,6 +33,7 @@ public:
     }
     
     QImage& operator->() { return m_texture; }
+    QImage& getTexture() { return m_texture; }
 private:
     QString m_filename;
     QImage m_texture;
@@ -145,6 +147,19 @@ int DetectTileSize(const std::vector<std::tuple<QString, QImage>>& textures)
     return powers[index];
 }
 
+void addTile(const QString& tileid, const QImage& src, QJsonArray& descriptions, QImage& textureAtlas, int x, int y)
+{
+    QJsonObject textureJson;
+    textureJson["ID"] = tileid;
+    textureJson["width"] = src.width();
+    textureJson["height"] = src.height();
+    textureJson["x"] = x;
+    textureJson["y"] = y;
+    descriptions.push_back(textureJson);
+    QPainter painter(&textureAtlas);
+    painter.drawImage(QRect(x,y,src.width(),src.height()), src, QRect(0,0,src.width(),src.height()));
+}
+
 void generateTexture(const QString& filename, unsigned int widthAndHeight, const std::vector<std::tuple<QString, QImage>>& textures)
 {
     if (QFileInfo::exists(filename))
@@ -174,13 +189,17 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, const
     int tileSize = DetectTileSize(textures);
     description["fileinfo"]=FileInformation(filename, tileSize);
     QJsonArray textureDescriptions;
+    int x = 0;
+    int y = 0;
     for (const auto& i : textures)
     {
-        QJsonObject textureJson;
-        textureJson["ID"] = std::get<0>(i);
-        textureJson["width"] = std::get<1>(i).width();
-        textureJson["height"] = std::get<1>(i).height();
-        textureDescriptions.push_back(textureJson);
+        addTile(std::get<0>(i), std::get<1>(i), textureDescriptions, texture.getTexture(), x, y);
+        x += tileSize;
+        if (x+tileSize>texture.getTexture().width())
+        {
+            x = 0;
+            y += tileSize;
+        }
     }
     description["textures"]=textureDescriptions;
 }

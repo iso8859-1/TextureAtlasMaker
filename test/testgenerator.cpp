@@ -215,6 +215,9 @@ TEST_CASE("generated texture contains textures passed as argument at the locatio
     QImage green(8,8,QImage::Format_ARGB32);
     green.fill(QColor(0,255,0));
     textures.push_back(std::make_tuple<QString,QImage>("green",std::move(green)));
+    QImage red(8,8,QImage::Format_ARGB32);
+    red.fill(QColor(255,0,0));
+    textures.push_back(std::make_tuple<QString,QImage>("red",std::move(red)));
     
     generateTexture(testfile, 16, textures);
     
@@ -246,6 +249,10 @@ TEST_CASE("generated texture contains textures passed as argument at the locatio
                 else if (ID == "green")
                 {
                     REQUIRE(image.pixel(x+i, y+k) == 0xff00ff00);
+                }
+                else if (ID == "red")
+                {
+                    REQUIRE(image.pixel(x+i, y+k) == 0xffff0000);
                 }
                 else
                 {
