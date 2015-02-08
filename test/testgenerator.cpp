@@ -340,4 +340,21 @@ TEST_CASE("generated texture supports tiles that are larger than the base tile",
     }
 }
 
+TEST_CASE("textures are sorted according to area & biggest dimension","[functional][sorter]")
+{
+    std::vector<std::tuple<QString, QImage>> textures;
+    textures.push_back(std::make_tuple<QString,QImage>("a",QImage(16,16,QImage::Format_ARGB32)));
+    textures.push_back(std::make_tuple<QString,QImage>("c",QImage(8,8,QImage::Format_ARGB32)));
+    textures.push_back(std::make_tuple<QString,QImage>("b",QImage(4,16,QImage::Format_ARGB32)));
+    textures.push_back(std::make_tuple<QString,QImage>("d",QImage(4,4,QImage::Format_ARGB32)));
+    auto sorted = SortTexturesAccordingToSizeAndDimension(textures);
+    CHECK(sorted.size()==textures.size());
+    for (int i = sorted.size()-1; i>0; --i)
+    {
+        auto value_i = std::get<0>(sorted[i]).toStdString();
+        auto value_iminusone = std::get<0>(sorted[i-1]).toStdString();
+        CHECK(value_i<value_iminusone);
+    }
+}
+
 

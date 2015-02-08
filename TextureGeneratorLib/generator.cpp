@@ -160,6 +160,28 @@ void addTile(const QString& tileid, const QImage& src, QJsonArray& descriptions,
     painter.drawImage(QRect(x,y,src.width(),src.height()), src, QRect(0,0,src.width(),src.height()));
 }
 
+std::vector<std::tuple<QString,QImage>> SortTexturesAccordingToSizeAndDimension(const std::vector<std::tuple<QString,QImage>>& textures)
+{
+    auto sortedTextures = textures;
+    std::sort(sortedTextures.begin(),sortedTextures.end(),
+              [](const std::tuple<QString, QImage>& lhs, std::tuple<QString, QImage>& rhs)
+              {
+                  auto& left = std::get<1>(lhs);
+                  auto& right = std::get<1>(rhs);
+                  if (left.width()*left.height()==right.width()*right.height())
+                  {
+                      auto maxDimLeft = std::max(left.width(),left.height());
+                      auto maxDimRight = std::max(right.width(),right.height());
+                      return maxDimLeft<maxDimRight;
+                  }
+                  else
+                  {
+                      return left.width()*left.height()<right.width()*right.height();
+                  }
+              });
+    return sortedTextures;
+}
+
 void generateTexture(const QString& filename, unsigned int widthAndHeight, const std::vector<std::tuple<QString, QImage>>& textures)
 {
     if (QFileInfo::exists(filename))
@@ -200,7 +222,9 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, const
     QJsonArray textureDescriptions;
     int x = 0;
     int y = 0;
-    for (const auto& i : textures)
+    auto sortedTextures = SortTexturesAccordingToSizeAndDimension(textures);
+    
+    for (const auto& i : sortedTextures)
     {
         addTile(std::get<0>(i), std::get<1>(i), textureDescriptions, texture.getTexture(), x, y);
         x += tileSize;

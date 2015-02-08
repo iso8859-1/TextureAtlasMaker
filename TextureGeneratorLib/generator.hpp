@@ -26,3 +26,4 @@ public:
 void generateTexture(const QString& filename, unsigned int widthAndHeight, const std::vector<std::tuple<QString,QImage>>& textures);
 QString DescriptionFilename(const QString& file);
 int DetectTileSize(const std::vector<std::tuple<QString, QImage>>& textures);
+std::vector<std::tuple<QString,QImage>> SortTexturesAccordingToSizeAndDimension(const std::vector<std::tuple<QString,QImage>>& textures);
