@@ -280,3 +280,64 @@ TEST_CASE("generator throws illegal argument exception if selected texture size 
     CHECK_THROWS_AS(generateTexture(testfile, 16, textures), InvalidArgument);
 }
 
+TEST_CASE("generated texture supports tiles that are larger than the base tile","[funtional][generator]")
+{
+    QString testfile("testfile.png");
+    Cleanup(testfile);
+    
+    std::vector<std::tuple<QString, QImage>> textures;
+    QImage blue(8,8,QImage::Format_ARGB32);
+    blue.fill(QColor(0,0,255));
+    textures.push_back(std::make_tuple<QString,QImage>("blue",std::move(blue)));
+    QImage green(8,8,QImage::Format_ARGB32);
+    green.fill(QColor(0,255,0));
+    textures.push_back(std::make_tuple<QString,QImage>("green",std::move(green)));
+    QImage red(8,16,QImage::Format_ARGB32);
+    red.fill(QColor(255,0,0));
+    textures.push_back(std::make_tuple<QString,QImage>("red",std::move(red)));
+    
+    generateTexture(testfile, 16, textures);
+    
+    QImage image(testfile,"PNG");
+    QFile tmp(DescriptionFilename(testfile));
+    tmp.open(QFile::ReadOnly);
+    auto description = QJsonDocument::fromJson(tmp.readAll());
+    auto textureDescription = description.object();
+    auto textureArray = textureDescription["textures"].toArray();
+    
+    for (int i=0; i<textures.size(); ++i)
+    {
+        auto tmp = textureArray[i].toObject();
+        auto ID = tmp["ID"].toString();
+        auto x = tmp["x"].toInt();
+        auto y = tmp["y"].toInt();
+        auto width = tmp["width"].toInt();
+        auto height = tmp["height"].toInt();
+        REQUIRE(width!=0);
+        REQUIRE(height!=0);
+        for (int i=0; i<width; ++i)
+        {
+            for (int k=0; k<height; ++k)
+            {
+                if (ID == "blue")
+                {
+                    REQUIRE(image.pixel(x+i, y+k) == 0xff0000ff);
+                }
+                else if (ID == "green")
+                {
+                    REQUIRE(image.pixel(x+i, y+k) == 0xff00ff00);
+                }
+                else if (ID == "red")
+                {
+                    REQUIRE(image.pixel(x+i, y+k) == 0xffff0000);
+                }
+                else
+                {
+                    REQUIRE(false);
+                }
+            }
+        }
+    }
+}
+
+
