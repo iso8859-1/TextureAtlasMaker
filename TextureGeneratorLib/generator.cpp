@@ -9,6 +9,7 @@
 #include <QPainter>
 
 #include <set>
+#include <cassert>
 
 QJsonObject FileInformation(const QString& filename, int tileSize);
 
@@ -220,20 +221,26 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, const
     int tileSize = DetectTileSize(textures);
     description["fileinfo"]=FileInformation(filename, tileSize);
     QJsonArray textureDescriptions;
-    int x = 0;
-    int y = 0;
-    auto sortedTextures = SortTexturesAccordingToSizeAndDimension(textures);
+    //int x = 0;
+    //int y = 0;
+    auto fit = GenerateFit(textures, widthAndHeight);
     
-    for (const auto& i : sortedTextures)
+    for (const auto& i : fit)
     {
-        addTile(std::get<0>(i), std::get<1>(i), textureDescriptions, texture.getTexture(), x, y);
+        const auto& tmp = textures[i.index];
+        addTile(std::get<0>(tmp), std::get<1>(tmp), textureDescriptions, texture.getTexture(), i.x*tileSize, i.y*tileSize);
+    }
+    
+    /*for (auto i=sortedTextures.crbegin(); i!=sortedTextures.crend(); ++i)
+    {
+        addTile(std::get<0>(*i), std::get<1>(*i), textureDescriptions, texture.getTexture(), x, y);
         x += tileSize;
         if (x+tileSize>texture.getTexture().width())
         {
             x = 0;
             y += tileSize;
         }
-    }
+    }*/
     description["textures"]=textureDescriptions;
 }
 
@@ -250,4 +257,84 @@ QString DescriptionFilename(const QString& file)
 {
     QFileInfo fi(file);
     return fi.baseName()+".json";
+}
+
+const char EMPTY = 0;
+const char FULL = 1;
+
+bool fits(size_t index, int sideLength, int width, int height, const std::vector<char>& map)
+{
+    auto x = index%sideLength;
+    auto y = index/sideLength;
+    
+    for (int i=0; i<width; ++i)
+    {
+        bool fit = true;
+        for (int k=0; k<height; ++k)
+        {
+            auto localx = x+i;
+            auto localy = y+k;
+            auto mapindex = localx+sideLength*localy;
+            if (mapindex>=map.size() || map[mapindex]==FULL)
+            {
+                fit = false;
+            }
+        }
+        if (fit == true)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void mark(size_t index, int sideLength, int width, int height, std::vector<char>& map)
+{
+    auto x = index%sideLength;
+    auto y = index/sideLength;
+    
+    for (int i=0; i<width; ++i)
+    {
+        for (int k=0; k<height; ++k)
+        {
+            auto localx = x+i;
+            auto localy = y+k;
+            auto mapindex = localx+sideLength*localy;
+            assert(mapindex<map.size());
+            map[mapindex]=FULL;
+        }
+    }
+}
+
+std::vector<SolutionCoordinates> GenerateFit(const std::vector<std::tuple<QString,QImage>>& textures, int textureSize)
+{
+    std::vector<SolutionCoordinates> result;
+    auto tileSize = DetectTileSize(textures);
+    if (tileSize==0)
+    {
+        return result;
+    }
+    auto sortedTextures = SortTexturesAccordingToSizeAndDimension(textures);
+    
+    auto textureSizeInTiles = textureSize / tileSize;
+    assert(textureSize % tileSize == 0);
+    
+    std::vector<char> fittingMap;
+    fittingMap.resize(textureSizeInTiles*textureSizeInTiles);
+    
+    for (int t=sortedTextures.size()-1; t>=0; --t)
+    {
+        const auto& texture = sortedTextures[t];
+        for (size_t i=0; i<fittingMap.size(); ++i)
+        {
+            if (fits(i, textureSizeInTiles, std::get<1>(texture).width()/tileSize, std::get<1>(texture).height()/tileSize, fittingMap))
+            {
+                mark(i, textureSizeInTiles, std::get<1>(texture).width()/tileSize, std::get<1>(texture).height()/tileSize, fittingMap);
+                result.push_back({static_cast<int>(i%textureSizeInTiles),static_cast<int>(i/textureSizeInTiles),static_cast<size_t>(t)});
+                break; //continue with next texture;
+            }
+        }
+    }
+    
+    return result;
 }

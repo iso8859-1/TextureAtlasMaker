@@ -315,6 +315,9 @@ TEST_CASE("generated texture supports tiles that are larger than the base tile",
         auto height = tmp["height"].toInt();
         REQUIRE(width!=0);
         REQUIRE(height!=0);
+        INFO(ID.toStdString());
+        CHECK((x+width)<=image.width());
+        CHECK((y+height)<=image.height());
         for (int i=0; i<width; ++i)
         {
             for (int k=0; k<height; ++k)

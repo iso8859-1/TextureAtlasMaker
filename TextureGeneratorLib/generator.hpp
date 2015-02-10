@@ -23,6 +23,15 @@ public:
     InvalidArgument(const std::string& message) : GeneratorException(message) {}
 };
 
+struct SolutionCoordinates
+{
+    int x;
+    int y;
+    size_t index;
+};
+
+std::vector<SolutionCoordinates> GenerateFit(const std::vector<std::tuple<QString,QImage>>& textures, int textureSize);
+
 void generateTexture(const QString& filename, unsigned int widthAndHeight, const std::vector<std::tuple<QString,QImage>>& textures);
 QString DescriptionFilename(const QString& file);
 int DetectTileSize(const std::vector<std::tuple<QString, QImage>>& textures);
