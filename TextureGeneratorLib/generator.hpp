@@ -26,7 +26,7 @@ public:
 class NoFitAvailable : public GeneratorException
 {
 public:
-    NoFitAvailable() : GeneratorException("No fit available for current texture size") {}
+    NoFitAvailable(const std::string& message) : GeneratorException(message) {}
 };
 
 struct SolutionCoordinates

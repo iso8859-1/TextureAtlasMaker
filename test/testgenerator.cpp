@@ -277,7 +277,7 @@ TEST_CASE("generator throws illegal argument exception if selected texture size 
         name << i;
         textures.push_back(std::make_tuple<QString,QImage>(name.str().c_str(),std::move(tex)));
     }
-    CHECK_THROWS_AS(generateTexture(testfile, 16, textures), InvalidArgument);
+    CHECK_THROWS_AS(generateTexture(testfile, 16, textures), NoFitAvailable);
 }
 
 TEST_CASE("generated texture supports tiles that are larger than the base tile","[funtional][generator]")

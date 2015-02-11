@@ -212,12 +212,12 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, const
     
     if (area>widthAndHeight*widthAndHeight)
     {
-        throw InvalidArgument("textures do not fit into texture atlas");
+        throw NoFitAvailable("area not sufficient");
     }
     auto fit = GenerateFit(textures, widthAndHeight);
     if (fit.size()!=textures.size())
     {
-        throw NoFitAvailable();
+        throw NoFitAvailable("no fit found although area is sufficient");
     }
     AutoSavingTexture texture(filename,widthAndHeight);
     JsonFile descriptionFile(DescriptionFilename(filename));
