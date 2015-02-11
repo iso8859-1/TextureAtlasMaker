@@ -282,7 +282,7 @@ TEST_CASE("generator throws illegal argument exception if selected texture size 
 
 TEST_CASE("generated texture supports tiles that are larger than the base tile","[funtional][generator]")
 {
-    QString testfile("testfile2.png");
+    QString testfile("testfile.png");
     Cleanup(testfile);
     
     std::vector<std::tuple<QString, QImage>> textures;
