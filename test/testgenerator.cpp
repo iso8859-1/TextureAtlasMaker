@@ -360,4 +360,20 @@ TEST_CASE("textures are sorted according to area & biggest dimension","[function
     }
 }
 
+TEST_CASE("generator throws no fit available if no fit is found but the area is sufficient","[functional][generator]")
+{
+    QString testfile("testfile.png");
+    Cleanup(testfile);
+    
+    std::vector<std::tuple<QString, QImage>> textures;
+    QImage blue(8,16,QImage::Format_ARGB32);
+    blue.fill(QColor(0,0,255));
+    textures.push_back(std::make_tuple<QString,QImage>("blue",std::move(blue)));
+    QImage green(16,8,QImage::Format_ARGB32);
+    green.fill(QColor(0,255,0));
+    textures.push_back(std::make_tuple<QString,QImage>("green",std::move(green)));
+    
+    CHECK_THROWS_AS(generateTexture(testfile, 16, textures),NoFitAvailable);
+}
+
 

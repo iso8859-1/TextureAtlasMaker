@@ -23,6 +23,12 @@ public:
     InvalidArgument(const std::string& message) : GeneratorException(message) {}
 };
 
+class NoFitAvailable : public GeneratorException
+{
+public:
+    NoFitAvailable() : GeneratorException("No fit available for current texture size") {}
+};
+
 struct SolutionCoordinates
 {
     int x;

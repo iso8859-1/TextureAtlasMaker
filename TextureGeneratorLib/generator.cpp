@@ -214,7 +214,11 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, const
     {
         throw InvalidArgument("textures do not fit into texture atlas");
     }
-    
+    auto fit = GenerateFit(textures, widthAndHeight);
+    if (fit.size()!=textures.size())
+    {
+        throw NoFitAvailable();
+    }
     AutoSavingTexture texture(filename,widthAndHeight);
     JsonFile descriptionFile(DescriptionFilename(filename));
     auto& description = descriptionFile.getRoot();
@@ -223,24 +227,11 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, const
     QJsonArray textureDescriptions;
     //int x = 0;
     //int y = 0;
-    auto fit = GenerateFit(textures, widthAndHeight);
-    
     for (const auto& i : fit)
     {
         const auto& tmp = textures[i.index];
         addTile(std::get<0>(tmp), std::get<1>(tmp), textureDescriptions, texture.getTexture(), i.x*tileSize, i.y*tileSize);
     }
-    
-    /*for (auto i=sortedTextures.crbegin(); i!=sortedTextures.crend(); ++i)
-    {
-        addTile(std::get<0>(*i), std::get<1>(*i), textureDescriptions, texture.getTexture(), x, y);
-        x += tileSize;
-        if (x+tileSize>texture.getTexture().width())
-        {
-            x = 0;
-            y += tileSize;
-        }
-    }*/
     description["textures"]=textureDescriptions;
 }
 
