@@ -214,7 +214,8 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, const
     {
         throw NoFitAvailable("area not sufficient");
     }
-    auto fit = GenerateFit(textures, widthAndHeight);
+    auto sortedTextures = SortTexturesAccordingToSizeAndDimension(textures);
+    auto fit = GenerateFit(sortedTextures, widthAndHeight);
     if (fit.size()!=textures.size())
     {
         throw NoFitAvailable("no fit found although area is sufficient");
@@ -229,7 +230,7 @@ void generateTexture(const QString& filename, unsigned int widthAndHeight, const
     //int y = 0;
     for (const auto& i : fit)
     {
-        const auto& tmp = textures[i.index];
+        const auto& tmp = sortedTextures[i.index];
         addTile(std::get<0>(tmp), std::get<1>(tmp), textureDescriptions, texture.getTexture(), i.x*tileSize, i.y*tileSize);
     }
     description["textures"]=textureDescriptions;
@@ -305,7 +306,6 @@ std::vector<SolutionCoordinates> GenerateFit(const std::vector<std::tuple<QStrin
     {
         return result;
     }
-    auto sortedTextures = SortTexturesAccordingToSizeAndDimension(textures);
     
     auto textureSizeInTiles = textureSize / tileSize;
     assert(textureSize % tileSize == 0);
@@ -313,9 +313,9 @@ std::vector<SolutionCoordinates> GenerateFit(const std::vector<std::tuple<QStrin
     std::vector<char> fittingMap;
     fittingMap.resize(textureSizeInTiles*textureSizeInTiles);
     
-    for (int t=sortedTextures.size()-1; t>=0; --t)
+    for (int t=textures.size()-1; t>=0; --t)
     {
-        const auto& texture = sortedTextures[t];
+        const auto& texture = textures[t];
         for (size_t i=0; i<fittingMap.size(); ++i)
         {
             if (fits(i, textureSizeInTiles, std::get<1>(texture).width()/tileSize, std::get<1>(texture).height()/tileSize, fittingMap))
